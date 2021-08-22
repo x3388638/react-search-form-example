@@ -1,6 +1,9 @@
-import { ComponentProps, FC } from 'react'
+import { ComponentProps, FC, FormEvent, useReducer } from 'react'
 import { Form, Button } from 'react-bootstrap'
 import styled from 'styled-components'
+
+import { SearchFormProvider } from './searchFormContext'
+import reducer, { CLEAR_FIELD, RESET, SET_FIELD } from './reducer'
 
 const Container = styled(Form)`
   margin: 20px;
@@ -22,26 +25,81 @@ const Buttons = styled.div`
 `
 
 interface SearchFormProps extends ComponentProps<typeof Form> {
-  onSearch: () => any
+  onSearch: (fields: Record<string, any>) => void
+  onClear?: () => void
 }
 
 const SearchForm: FC<SearchFormProps> = ({
   onSearch,
+  onClear,
   children,
   ...restProps
 }) => {
+  const [fields, dispatch] = useReducer(reducer, {})
+
+  const setFieldValue = ({
+    fieldKey,
+    value
+  }: {
+    fieldKey: string
+    value: any
+  }) => {
+    dispatch({
+      type: SET_FIELD,
+      payload: {
+        fieldKey,
+        value
+      }
+    })
+  }
+
+  const clearField = (fieldKey: string) => {
+    dispatch({
+      type: CLEAR_FIELD,
+      payload: {
+        fieldKey
+      }
+    })
+  }
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    onSearch(fields)
+  }
+
+  const handleClear = () => {
+    dispatch({
+      type: RESET
+    })
+
+    onClear && onClear()
+  }
+
   return (
-    <Container className="searchForm" {...restProps}>
-      <Fields>{children}</Fields>
-      <Buttons>
-        <Button type="submit" size="sm">
-          Search
-        </Button>
-        <Button type="button" size="sm" variant="secondary">
-          Clear
-        </Button>
-      </Buttons>
-    </Container>
+    <SearchFormProvider
+      value={{
+        fields,
+        setFieldValue,
+        clearField
+      }}
+    >
+      <Container onSubmit={handleSubmit} {...restProps}>
+        <Fields>{children}</Fields>
+        <Buttons>
+          <Button type="submit" size="sm">
+            Search
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={handleClear}
+          >
+            Clear
+          </Button>
+        </Buttons>
+      </Container>
+    </SearchFormProvider>
   )
 }
 

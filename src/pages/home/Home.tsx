@@ -3,14 +3,18 @@ import { FC } from 'react'
 import SearchForm, { Input, Select } from '../../components/SearchForm'
 
 const Home: FC = () => {
-  const handleSearch = () => {
-    console.log('handle search')
+  const handleSearch = (fields: Record<string, any>) => {
+    console.log(fields)
   }
 
   return (
     <div>
       <SearchForm onSearch={handleSearch}>
-        <Input fieldKey="name" fieldLabel="User Name" />
+        <Input
+          fieldKey="name"
+          fieldLabel="User Name"
+          defaultValue="default name"
+        />
         <Input fieldKey="email" fieldLabel="User Email" type="email" />
         <Select
           fieldKey="gender"
