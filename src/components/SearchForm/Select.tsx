@@ -27,6 +27,12 @@ const Select: FC<SelectProps> = ({
     setFieldValue(defaultValue as string)
   }, [defaultValue])
 
+  useEffect(() => {
+    if (!fieldValue) {
+      setFieldValue(options[0].value)
+    }
+  }, [fieldValue, options])
+
   const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
     setFieldValue(e.target.value)
   }
